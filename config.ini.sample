@@ -1,0 +1,11 @@
+; POS Scale App — sample config. Copy to config.ini next to the EXE and edit as needed.
+
+[serial]
+port = COM6
+baud = 9600
+
+[app]
+currency = ₪
+
+[printer]
+font_height = 120
