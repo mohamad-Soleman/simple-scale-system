@@ -60,10 +60,12 @@ Output: `dist/ScaleApp/ScaleApp.exe` plus DLLs and dependencies. Copy the whole 
 
 ### Building a release via GitHub Actions
 
-1. Go to **Actions** → **Build and release Windows EXE** → **Run workflow**.
+1. Go to **Actions** → **Build and release** → **Run workflow**.
 2. Enter a **version tag** (e.g. `v1.0.0`) and run.
-3. When the workflow finishes, open **Releases** on the repo; the new release will have a ZIP attached.
-4. The ZIP contains the full app folder: `ScaleApp.exe`, all dependencies, `products.db` (empty schema), and `config.ini` (sample). Extract anywhere on the Windows scale machine and run `ScaleApp.exe`.
+3. When the workflow finishes, open **Releases**; the new release will have two ZIPs:
+   - **Windows:** `POS-Scale-App-<tag>-windows.zip` — extract and run `ScaleApp.exe`.
+   - **Mac:** `POS-Scale-App-<tag>-mac.zip` — extract and run the `ScaleApp` binary (e.g. `./ScaleApp` in Terminal). Set the serial port in `config.ini` (e.g. `/dev/cu.usbserial-*`). Printing is Windows-only unless a Mac printer path is added.
+4. Both ZIPs include the app, `products.db` (empty schema), and `config.ini` (sample).
 
 **One-file (single EXE)**  
 You can switch the spec to onefile; the DB and log are still read/written in the directory where the EXE lives (not inside the bundle). Onefile may be slower on first run and can trigger antivirus; onedir is more reliable.
