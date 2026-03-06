@@ -88,20 +88,15 @@ class WindowsLabelPrinter:
             })
             dc.SelectObject(font)
             line_height = dc.GetTextExtent("X")[1] + 4
-            gap_px = 8
+            gap_px = 4
             margin = LABEL_RTL_MARGIN_PX
-            max_key_w = 0
-            for key, _ in pairs:
-                kw, _ = dc.GetTextExtent(key)
-                if kw > max_key_w:
-                    max_key_w = kw
             x_key_right = width_px - margin
-            x_value_right = x_key_right - max_key_w - gap_px
             total_text_height = line_height * len(pairs)
             y = max(0, (height_px - total_text_height) // 2)
             for key, value in pairs:
                 kw, _ = dc.GetTextExtent(key)
                 vw, _ = dc.GetTextExtent(value)
+                x_value_right = x_key_right - kw - gap_px
                 dc.TextOut(x_value_right - vw, y, value)
                 dc.TextOut(x_key_right - kw, y, key)
                 y += line_height
