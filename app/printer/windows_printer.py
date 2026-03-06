@@ -16,31 +16,25 @@ from app.config import (
 
 logger = logging.getLogger(__name__)
 
-# Hebrew units for label (no symbols)
-_UNIT_KG_HE = "קגרם"
-_UNIT_SHEKEL_HE = "שח"
-
-# Key strings (Hebrew label + colon)
-_KEY_MOTSAR = "מוצר :"
-_KEY_MISHKAL = "משקל :"
-_KEY_MECHIR = "מחיר :"
-_KEY_SUM = "סכום :"
+# Hebrew units for label (no symbols); space before unit so it doesn't run into the number
+_UNIT_KG_HE = " קגרם"
+_UNIT_SHEKEL_HE = " שח"
 
 
-def _format_label_pairs(
+def _format_label_lines(
     product_name: str,
     weight_kg: float,
     price_per_kg: float,
     total: float,
     date_time: datetime,
     currency: str = CURRENCY_SYMBOL,
-) -> list[tuple[str, str]]:
-    """Return (key, value) pairs. Keys and values in two columns; units in Hebrew (קגרם, שח)."""
+) -> list[str]:
+    """One full line per row, RTL. Format: key : value; units in Hebrew (קגרם, שח)."""
     return [
-        (_KEY_MOTSAR, product_name),
-        (_KEY_MISHKAL, f"{weight_kg:.3f} {_UNIT_KG_HE}"),
-        (_KEY_MECHIR, f"{price_per_kg:.2f} {_UNIT_SHEKEL_HE}"),
-        (_KEY_SUM, f"{total:.2f} {_UNIT_SHEKEL_HE}"),
+        f"מוצר : {product_name}",
+        f"משקל : {weight_kg:.3f}{_UNIT_KG_HE}",
+        f"מחיר : {price_per_kg:.2f}{_UNIT_SHEKEL_HE}",
+        f"סכום : {total:.2f}{_UNIT_SHEKEL_HE}",
     ]
 
 
@@ -73,7 +67,7 @@ class WindowsLabelPrinter:
             msg = f"pywin32 is missing or broken: {e}. Install: pip install pywin32"
             logger.error(msg)
             return msg
-        pairs = _format_label_pairs(product_name, weight_kg, price_per_kg, total, date_time, CURRENCY_SYMBOL)
+        lines = _format_label_lines(product_name, weight_kg, price_per_kg, total, date_time, CURRENCY_SYMBOL)
         try:
             printer_name = win32print.GetDefaultPrinter()
             dc = win32ui.CreateDC()
@@ -89,18 +83,13 @@ class WindowsLabelPrinter:
             })
             dc.SelectObject(font)
             line_height = dc.GetTextExtent("X")[1] + 4
-            gap_px = 4
             margin = LABEL_RTL_MARGIN_PX
-            max_key_w = max(dc.GetTextExtent(key)[0] for key, _ in pairs)
-            x_key_right = width_px - margin
-            x_value_right = x_key_right - max_key_w - gap_px
-            total_text_height = line_height * len(pairs)
+            total_text_height = line_height * len(lines)
             y = max(0, (height_px - total_text_height) // 2)
-            for key, value in pairs:
-                kw, _ = dc.GetTextExtent(key)
-                vw, _ = dc.GetTextExtent(value)
-                dc.TextOut(x_value_right - vw, y, value)
-                dc.TextOut(x_key_right - kw, y, key)
+            for line in lines:
+                tw, _ = dc.GetTextExtent(line)
+                x = max(0, width_px - tw - margin)
+                dc.TextOut(x, y, line)
                 y += line_height
             dc.EndPage()
             dc.EndDoc()
