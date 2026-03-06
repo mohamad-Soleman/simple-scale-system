@@ -16,6 +16,9 @@ from app.config import (
 
 logger = logging.getLogger(__name__)
 
+# Left-to-right mark: keeps value+unit (e.g. "0.092 kg", "100.00 ₪") beside the value, not the key, in RTL
+_LTR = "\u200e"
+
 
 def _format_label_lines(
     product_name: str,
@@ -25,12 +28,12 @@ def _format_label_lines(
     date_time: datetime,
     currency: str = CURRENCY_SYMBOL,
 ) -> list[str]:
-    """Return lines to print on the label (Hebrew, RTL order). No timestamp."""
+    """Return lines to print on the label (Hebrew, RTL). Value+unit use LTR so kg/₪ sit beside the number."""
     return [
         f"מוצר : {product_name}",
-        f"משקל : {weight_kg:.3f} kg",
-        f"מחיר : {price_per_kg:.2f} {currency}",
-        f"סכום : {total:.2f} {currency}",
+        f"משקל : {_LTR}{weight_kg:.3f} kg",
+        f"מחיר : {_LTR}{price_per_kg:.2f} {currency}",
+        f"סכום : {_LTR}{total:.2f} {currency}",
     ]
 
 

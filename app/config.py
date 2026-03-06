@@ -32,7 +32,7 @@ CURRENCY_SYMBOL = "₪"
 LABEL_FONT_NAME = "Arial"
 LABEL_FONT_HEIGHT = 48
 LABEL_FONT_WEIGHT = 700
-LABEL_RTL_MARGIN_PX = 15
+LABEL_RTL_MARGIN_PX = 50
 
 
 def load_optional_config() -> None:
@@ -43,7 +43,7 @@ def load_optional_config() -> None:
         import configparser
         cfg = configparser.ConfigParser()
         cfg.read(CONFIG_INI_PATH, encoding="utf-8")
-        global COM_PORT, BAUD, CURRENCY_SYMBOL, LABEL_FONT_HEIGHT
+        global COM_PORT, BAUD, CURRENCY_SYMBOL, LABEL_FONT_HEIGHT, LABEL_RTL_MARGIN_PX
         if cfg.has_section("serial"):
             COM_PORT = cfg.get("serial", "port", fallback=COM_PORT)
             BAUD = int(cfg.get("serial", "baud", fallback=BAUD))
@@ -51,5 +51,6 @@ def load_optional_config() -> None:
             CURRENCY_SYMBOL = cfg.get("app", "currency", fallback=CURRENCY_SYMBOL)
         if cfg.has_section("printer"):
             LABEL_FONT_HEIGHT = int(cfg.get("printer", "font_height", fallback=LABEL_FONT_HEIGHT))
+            LABEL_RTL_MARGIN_PX = int(cfg.get("printer", "rtl_margin_px", fallback=LABEL_RTL_MARGIN_PX))
     except Exception:
         pass  # Keep defaults on any error

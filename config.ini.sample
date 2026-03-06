@@ -9,3 +9,4 @@ currency = ₪
 
 [printer]
 font_height = 48
+rtl_margin_px = 50
