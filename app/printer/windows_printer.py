@@ -19,21 +19,27 @@ logger = logging.getLogger(__name__)
 # Left-to-right mark: keeps value+unit (e.g. "0.092 kg", "100.00 ₪") beside the value, not the key, in RTL
 _LTR = "\u200e"
 
+# Key strings (Hebrew label + colon); values built per line so keys and values can be drawn in two aligned columns
+_KEY_MOTSAR = "מוצר :"
+_KEY_MISHKAL = "משקל :"
+_KEY_MECHIR = "מחיר :"
+_KEY_SUM = "סכום :"
 
-def _format_label_lines(
+
+def _format_label_pairs(
     product_name: str,
     weight_kg: float,
     price_per_kg: float,
     total: float,
     date_time: datetime,
     currency: str = CURRENCY_SYMBOL,
-) -> list[str]:
-    """Return lines to print on the label (Hebrew, RTL). Value+unit use LTR so kg/₪ sit beside the number."""
+) -> list[tuple[str, str]]:
+    """Return (key, value) pairs. Keys align RTL; values align RTL; kg/₪ stay beside numbers via LTR."""
     return [
-        f"מוצר : {product_name}",
-        f"משקל : {_LTR}{weight_kg:.3f} kg",
-        f"מחיר : {_LTR}{price_per_kg:.2f} {currency}",
-        f"סכום : {_LTR}{total:.2f} {currency}",
+        (_KEY_MOTSAR, product_name),
+        (_KEY_MISHKAL, f"{_LTR}{weight_kg:.3f} kg"),
+        (_KEY_MECHIR, f"{_LTR}{price_per_kg:.2f} {currency}"),
+        (_KEY_SUM, f"{_LTR}{total:.2f} {currency}"),
     ]
 
 
@@ -66,7 +72,7 @@ class WindowsLabelPrinter:
             msg = f"pywin32 is missing or broken: {e}. Install: pip install pywin32"
             logger.error(msg)
             return msg
-        lines = _format_label_lines(product_name, weight_kg, price_per_kg, total, date_time, CURRENCY_SYMBOL)
+        pairs = _format_label_pairs(product_name, weight_kg, price_per_kg, total, date_time, CURRENCY_SYMBOL)
         try:
             printer_name = win32print.GetDefaultPrinter()
             dc = win32ui.CreateDC()
@@ -82,13 +88,22 @@ class WindowsLabelPrinter:
             })
             dc.SelectObject(font)
             line_height = dc.GetTextExtent("X")[1] + 4
-            total_text_height = line_height * len(lines)
-            y = max(0, (height_px - total_text_height) // 2)
+            gap_px = 8
             margin = LABEL_RTL_MARGIN_PX
-            for line in lines:
-                tw, _ = dc.GetTextExtent(line)
-                x = max(0, width_px - tw - margin)
-                dc.TextOut(x, y, line)
+            max_key_w = 0
+            for key, _ in pairs:
+                kw, _ = dc.GetTextExtent(key)
+                if kw > max_key_w:
+                    max_key_w = kw
+            x_key_right = width_px - margin
+            x_value_right = x_key_right - max_key_w - gap_px
+            total_text_height = line_height * len(pairs)
+            y = max(0, (height_px - total_text_height) // 2)
+            for key, value in pairs:
+                kw, _ = dc.GetTextExtent(key)
+                vw, _ = dc.GetTextExtent(value)
+                dc.TextOut(x_value_right - vw, y, value)
+                dc.TextOut(x_key_right - kw, y, key)
                 y += line_height
             dc.EndPage()
             dc.EndDoc()
