@@ -1,12 +1,18 @@
 """
 Windows default printer implementation using pywin32 GDI.
-Formats label with product name, weight, price/kg, total, date/time.
+Formats label in Hebrew, RTL: מוצר, מחיר, סכום. No timestamp.
 """
 import logging
 import traceback
 from datetime import datetime
 
-from app.config import CURRENCY_SYMBOL, LABEL_FONT_HEIGHT, LABEL_FONT_NAME, LABEL_FONT_WEIGHT
+from app.config import (
+    CURRENCY_SYMBOL,
+    LABEL_FONT_HEIGHT,
+    LABEL_FONT_NAME,
+    LABEL_FONT_WEIGHT,
+    LABEL_RTL_MARGIN_PX,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +25,12 @@ def _format_label_lines(
     date_time: datetime,
     currency: str = CURRENCY_SYMBOL,
 ) -> list[str]:
-    """Return lines to print on the label."""
+    """Return lines to print on the label (Hebrew, RTL order). No timestamp."""
     return [
-        product_name,
-        f"Weight: {weight_kg:.3f} kg",
-        f"Price/kg: {price_per_kg:.2f} {currency}",
-        f"Total: {total:.2f} {currency}",
-        date_time.strftime("%Y-%m-%d %H:%M"),
+        f"מוצר : {product_name}",
+        f"משקל : {weight_kg:.3f} kg",
+        f"מחיר : {price_per_kg:.2f} {currency}",
+        f"סכום : {total:.2f} {currency}",
     ]
 
 
@@ -76,9 +81,10 @@ class WindowsLabelPrinter:
             line_height = dc.GetTextExtent("X")[1] + 4
             total_text_height = line_height * len(lines)
             y = max(0, (height_px - total_text_height) // 2)
+            margin = LABEL_RTL_MARGIN_PX
             for line in lines:
                 tw, _ = dc.GetTextExtent(line)
-                x = max(0, (width_px - tw) // 2)
+                x = max(0, width_px - tw - margin)
                 dc.TextOut(x, y, line)
                 y += line_height
             dc.EndPage()

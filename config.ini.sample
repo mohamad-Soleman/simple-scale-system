@@ -8,4 +8,4 @@ baud = 9600
 currency = ₪
 
 [printer]
-font_height = 120
+font_height = 48

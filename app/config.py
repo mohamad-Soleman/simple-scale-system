@@ -30,8 +30,9 @@ CURRENCY_SYMBOL = "₪"
 
 # Label layout (for printer; pixel-related constants)
 LABEL_FONT_NAME = "Arial"
-LABEL_FONT_HEIGHT = 120
+LABEL_FONT_HEIGHT = 48
 LABEL_FONT_WEIGHT = 700
+LABEL_RTL_MARGIN_PX = 15
 
 
 def load_optional_config() -> None:
