@@ -16,10 +16,11 @@ from app.config import (
 
 logger = logging.getLogger(__name__)
 
-# Left-to-right mark: keeps value+unit (e.g. "0.092 kg", "100.00 ₪") beside the value, not the key, in RTL
-_LTR = "\u200e"
+# Hebrew units for label (no symbols)
+_UNIT_KG_HE = "קגרם"
+_UNIT_SHEKEL_HE = "שח"
 
-# Key strings (Hebrew label + colon); values built per line so keys and values can be drawn in two aligned columns
+# Key strings (Hebrew label + colon)
 _KEY_MOTSAR = "מוצר :"
 _KEY_MISHKAL = "משקל :"
 _KEY_MECHIR = "מחיר :"
@@ -34,12 +35,12 @@ def _format_label_pairs(
     date_time: datetime,
     currency: str = CURRENCY_SYMBOL,
 ) -> list[tuple[str, str]]:
-    """Return (key, value) pairs. Keys align RTL; values align RTL; kg/₪ stay beside numbers via LTR."""
+    """Return (key, value) pairs. Keys and values in two columns; units in Hebrew (קגרם, שח)."""
     return [
         (_KEY_MOTSAR, product_name),
-        (_KEY_MISHKAL, f"{_LTR}{weight_kg:.3f} kg"),
-        (_KEY_MECHIR, f"{_LTR}{price_per_kg:.2f} {currency}"),
-        (_KEY_SUM, f"{_LTR}{total:.2f} {currency}"),
+        (_KEY_MISHKAL, f"{weight_kg:.3f} {_UNIT_KG_HE}"),
+        (_KEY_MECHIR, f"{price_per_kg:.2f} {_UNIT_SHEKEL_HE}"),
+        (_KEY_SUM, f"{total:.2f} {_UNIT_SHEKEL_HE}"),
     ]
 
 
@@ -90,13 +91,14 @@ class WindowsLabelPrinter:
             line_height = dc.GetTextExtent("X")[1] + 4
             gap_px = 4
             margin = LABEL_RTL_MARGIN_PX
+            max_key_w = max(dc.GetTextExtent(key)[0] for key, _ in pairs)
             x_key_right = width_px - margin
+            x_value_right = x_key_right - max_key_w - gap_px
             total_text_height = line_height * len(pairs)
             y = max(0, (height_px - total_text_height) // 2)
             for key, value in pairs:
                 kw, _ = dc.GetTextExtent(key)
                 vw, _ = dc.GetTextExtent(value)
-                x_value_right = x_key_right - kw - gap_px
                 dc.TextOut(x_value_right - vw, y, value)
                 dc.TextOut(x_key_right - kw, y, key)
                 y += line_height

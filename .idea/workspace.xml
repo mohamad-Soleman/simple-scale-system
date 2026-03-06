@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d87d6ddd-8a0b-4e45-a35d-8e24164c68b3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/printer/windows_printer.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/printer/windows_printer.py" afterDir="false" />
-    </list>
+    <list default="true" id="d87d6ddd-8a0b-4e45-a35d-8e24164c68b3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -80,7 +77,7 @@
       <option name="presentableId" value="Default" />
       <updated>1772744184715</updated>
       <workItem from="1772744185721" duration="2039000" />
-      <workItem from="1772798706754" duration="1132000" />
+      <workItem from="1772798706754" duration="1663000" />
     </task>
     <servers />
   </component>
